@@ -30,15 +30,23 @@ Dual-Slope (DS) is a self-calibrating measurement technique that minimizes the i
   - `calAndAddDatatypes.m`: Calibration and data-type propagation.
 
 ### Examples (`examples/`)
-- **`standalone/`**: Direct hemodynamics calculation (Blaney et al., *J. Biophotonics* 2019).
-- **`array_design/`**: Pairing discovery and array evaluation (Blaney et al., *Rev. Sci. Instrum.* 2020).
-- **`neurow_imaging/`**: Step-by-step cerebral imaging workflow (Blaney et al., *Neurophotonics* 2023).
+- **`standalone/`**: Direct hemodynamics calculation.
+- **`array_design/`**: Pairing discovery and array evaluation.
+- **`neurow_imaging/`**: Step-by-step cerebral imaging workflow.
 
 ### Shared Data (`data/`)
 - Consolidated `.mat` files for examples and model parameters.
+
+## Citations
+
+If you use this toolkit in your research, please cite the following publications:
+
+1.  **Dual-Slope Foundations:** Blaney, G., Sassaroli, A., Pham, T., Fernandez, C., & Fantini, S. (2019). Phase dual-slopes in frequency-domain near-infrared spectroscopy for enhanced sensitivity to brain tissue: First applications to human subjects. *Journal of Biophotonics*, 12(11), e201960018. [https://doi.org/10.1002/jbio.201960018](https://doi.org/10.1002/jbio.201960018)
+2.  **Array Design:** Blaney, G., Sassaroli, A., & Fantini, S. (2020). Design of a source-detector array for dual-slope diffuse optical imaging. *Review of Scientific Instruments*, 91(11), 114102. [https://doi.org/10.1063/5.0015512](https://doi.org/10.1063/5.0015512)
+3.  **Cerebral Imaging:** Blaney, G., Fernandez, C., Sassaroli, A., & Fantini, S. (2023). Dual-slope imaging of cerebral hemodynamics with frequency-domain near-infrared spectroscopy. *Neurophotonics*, 10(1), 013508. [http://doi.org/10.1117/1.NPh.10.1.013508](http://doi.org/10.1117/1.NPh.10.1.013508)
 
 ## Author
 Developed by Giles Blaney, Ph.D.
 
 ---
-*Documentation written by Gemini CLI.*
+*This repository is a reorganized and documented version of a personal codebase, performed by Gemini CLI.*
