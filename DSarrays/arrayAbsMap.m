@@ -1,21 +1,30 @@
 function [absp] = arrayAbsMap(DS, NVA)
-%%%%% Written by Giles Blaney in Fall 2022, Comments added by 
-% Cristianne Fernandez in Aug 2023
-
-%%%%%%%%%%%%%%%%% Inputs %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DS- struct that containes the absolute mua and musp for each DS pair,
-%       location, and lambda
-% Optional Inputs 
-% method - determines the method to be used smooth the absolute optical
-%            properties map
-% len -Characteristic length of gaussian smoothing
-% dt - used to make coordinate system 
-% rHalo - amount that it applied abolsute optical properties around the
-% centroid 
-%%%%%%%%%%%%%%%% Outputs %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% absp - struct of the maps of the abolsute optical properties (mua and
-%           musp) 
-
+% arrayAbsMap Generates a 2D map of absolute optical properties from DS data.
+%
+% [absp] = arrayAbsMap(DS, NVA)
+%
+% Written by Giles Blaney, Ph.D. (Fall 2022)
+% Modified by Cristianne Fernandez (Aug 2023)
+%
+% Inputs:
+%   DS - Struct containing absolute optical properties for each Dual-Slope set.
+%        Fields:
+%        - mua: (nDS x nLambda) Absolute absorption [1/mm]
+%        - musp: (nDS x nLambda) Absolute reduced scattering [1/mm]
+%        - loc: (3 x nDS) Coordinates of DS set centroids [mm]
+%        - lambda: (1 x nLambda) Wavelengths [nm]
+%
+% Optional Name-Value-Arguments (NVA):
+%   method - Smoothing method to be used ('GaussCent')
+%   len    - Characteristic length of Gaussian smoothing [mm] (Default: 30)
+%   dr     - Spatial resolution of the coordinate system [mm] (Default: 1)
+%   rHalo  - Radius to apply absolute properties around each centroid [mm] (Default: 30)
+%
+% Outputs:
+%   absp - Struct containing the generated maps of absolute optical properties.
+%        Fields:
+%        - muaMap, muspMap: 2D maps for each wavelength.
+%        - x, y, XX, YY: Grid coordinates.
 
 %% Parse Input
     arguments

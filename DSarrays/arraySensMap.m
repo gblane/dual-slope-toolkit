@@ -1,5 +1,30 @@
 function [sens] = arraySensMap(datStruct, armt, absp, NVA)
-% Giles Blaney Ph.D. Winter 2023
+% arraySensMap Generates sensitivity maps (Jacobians) for a NIRS array.
+%
+% [sens] = arraySensMap(datStruct, armt, absp, NVA)
+%
+% Written by Giles Blaney, Ph.D. (Winter 2023)
+%
+% Inputs:
+%   datStruct - Struct containing NIRS data/metadata (typ, lambda, loc, rho).
+%   armt      - Struct containing array arrangement (rSrc, rDet, SDprs, SSprs, DSprs).
+%   absp      - Struct containing absolute optical property maps (XX, YY, muaMap, muspMap).
+%
+% Optional Name-Value-Arguments (NVA):
+%   Sthresh   - Threshold for removing weak sensitivity points (Default: 5e-5)
+%   z_min     - Minimum depth for sensitivity calculation [mm] (Default: 0)
+%   z_max     - Maximum depth for sensitivity calculation [mm] (Default: 30)
+%   z_lay     - Depth boundary between layer 1 and layer 2 [mm] (Default: 5)
+%   haloRad   - Radius around optodes to calculate sensitivity [mm] (Default: 35)
+%   dr        - Grid resolution [dx, dy, dz] [mm] (Default: [1, 1, 1])
+%   nin       - Index of refraction of the medium (Default: 1.4)
+%   nou       - Index of refraction of the outside medium (Default: 1)
+%   fmod      - Modulation frequency [Hz] (Default: 140.625e6)
+%   datTyps   - String array of data types (Default: ["C", "I", "P"])
+%
+% Outputs:
+%   sens - Struct containing sensitivity maps and coordinate information.
+
     %% Parse Input
     arguments
         datStruct struct;

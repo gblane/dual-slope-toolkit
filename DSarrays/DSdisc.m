@@ -1,4 +1,31 @@
 function [armt, fh] = DSdisc(coors, nameValArgs)
+% DSdisc Discovers valid Dual-Slope (DS) optode pairings for a given array.
+%
+% [armt, fh] = DSdisc(coors, nameValArgs)
+%
+% Written by Giles Blaney, Ph.D.
+%
+% This function identifies Single-Distance (SD), Single-Slope (SS), and
+% Dual-Slope (DS) pairs from a set of source and detector coordinates 
+% based on specified distance and tolerance constraints.
+%
+% Inputs:
+%   coors - Struct containing optode coordinates:
+%           - AllSrcs: (nSrc x 3) Source positions [mm]
+%           - AllDets: (nDet x 3) Detector positions [mm]
+%           - name: Optional string for the array name.
+%
+% Optional Name-Value-Arguments:
+%   scl   - Scaling factor for coordinates (Default: 1)
+%   rRng  - Valid range for source-detector distances [min, max] [mm] (Default: [0, 45])
+%   lRng  - Valid range for the midpoint of DS pairs [mm] (Default: [5, 25])
+%   lTol  - Tolerance for matching distances in DS pairs [mm] (Default: 1)
+%   plot  - Plotting mode: 'none', 'summary', or 'full' (Default: 'none')
+%
+% Outputs:
+%   armt  - Struct defining the array arrangement and identified pairs.
+%   fh    - Figure handle for the summary/full plots.
+
     %% Parse Input
     arguments
         coors struct;

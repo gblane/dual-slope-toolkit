@@ -1,115 +1,41 @@
 function [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
-% [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap)
-% Giles Blaney Ph.D. Winter 2023
-% This function takes in raw data loaded from an ISS instrument output file
-% (data) along with the source-detector arrangement (armt) and map of 
-% plugged in sources and detectors (ISSmap). The output is a struct for 
-% each measurement type (SD, SS, and DS) along with auxiliary signals
-% (aux).
+% parseArrayData Parses raw ISS NIRS data into SD, SS, and DS structures.
+%
+% [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
+%
+% Written by Giles Blaney, Ph.D. (Winter 2023)
+%
+% This function processes raw frequency-domain data from an ISS instrument
+% and organizes it into Single-Distance (SD), Single-Slope (SS), and 
+% Dual-Slope (DS) structures based on a specified array arrangement.
 % 
-% INPUTS:   - data: Struct output from the load_Imagent() or load_ISS
-%                   functions, containing:
-%               - timemat: (t,1) Vector of time [s]
-%               - fs: Sample rate [Hz]
-%               - A, B,... struct with detector letter name containing:
-%                   - AC: (t,ISSsrcIdx) Matrix of FD amplitude [arb.]
-%                   - DC: (t,ISSsrcIdx) Matrix of CW signal [arb.]
-%                   - Ph: (t,ISSsrcIdx) Metrix of FD phase [deg]
-%               - AUX: (t,auxIdx) Matrix of auxiliary signals [various]
-%           - armt: Struct output from the DSdisc() function, containing 
-%                   (SDprs, SSprs, or DSprs can be empty):
-%               - rSrc: (srcIdx,3) Matrix of source coordinates [mm]
-%               - rDet: (detIdx,3) Matrix of detector coordinates [mm]
-%               - SDprs: (SDidx,2) Single-Distance pairs in the format:
-%                       [srcIdx1, detIdx1;
-%                        srcIdx2, detIdx2;
-%                          ...      ...   ]
-%               - SSprs: (SDidx,2,SSidx) Single-Slope pairs in the format:
-%                       SSprs(:,:,SSidx)=[srcIdx1, detIdx1;
-%                                         srcIdx2, detIdx2]
-%               - DSprs: (SDidx,2,SSidx,DSidx) Dual-Slope pairs in the
-%                       format:
-%                       DSprs(:,:,1,DSidx)=[srcIdx11, detIdx11;
-%                                           srcIdx12, detIdx12]
-%                       DSprs(:,:,2,DSidx)=[srcIdx21, detIdx21;
-%                                           srcIdx22, detIdx22]
-%           - ISSmap: Struct containing:
-%               - numLam: Number of wavelengths
-%               - lambda: (1,lamIdx) Vector of wavelengths [nm]
-%               - lets: (1,detIdk) Char vector of detector letter names
-%               - inds: (lamIdx,srcIdx,detIdx) Array containing the
-%                       ISSsrcIndx (used in data struct) for each 
-%                       combination of lamIdx, srcIdx, and detIdx
-%           - Optional Name-Value-Arguments (NVAs):
-%               - 'BLinds': (t,1) Logical vector which is true during
-%                           baseline. Baseline data is used for calculation
-%                           of absolute optical properties for each DS set
-%               - 'BLaux': (1,:) String containing the name of the aux 
-%                           channel to be used for BLinds. This overrides 
-%                           the above 'BLinds' input
-%               - 'doAbs': Logical controlling whether or not absolute
-%                           optical properties are calculated
-%               - 'muaBnd': (1,2) Vector of upper and lower bound for
-%                           recovery of the absolute absorption coefficient
-%                           (mua), values outside of bound return NaN
-%               - 'muspBnd': (1,2) Vector of upper and lower bound for
-%                           recovery of the absolute reduced scattering 
-%                           coefficient (musp), values outside of bound 
-%                           return NaN
-%               - 'calibrateAUX_NVA': (1,:) Cell array containing 
-%                           Name-Value-Argument pairs to be passed to the
-%                           calibrateAUX function
-% OUTPUTS:  - SD: Struct for Single-Distance (SD) containing:
-%               - typ: String of value 'SD' to identify struct type
-%               - t: (t,1) Vector of time [s]
-%               - fs: Sampling rate [Hz]
-%               - lambda: (1,lamIdx) Vector of wavelengths [nm]
-%               - rho: (1,SDidx) Vector of source-detector distances [mm]
-%               - loc: (3,SDidx) Matrix of SD sets optode centroid [mm]
-%               - R: (t,SDidx,lamIdx) Complex Reflectance [arb./mm^2]
-%               - Rcw: (t,SDidx,lamIdx) Reflectance [arb./mm^2]
-%               - C: (t,SDidx,lamIdx) CW data-type {ln(rho^2Rcw)}
-%               - I: (t,SDidx,lamIdx) FD amplitude data-type {ln(rho^2|R|)}
-%               - P: (t,SDidx,lamIdx) FD phase {angle(R)} [rad]
-%           - SS: Struct for Single-Slope (SS) containing:
-%               - typ: String of value 'SS' to identify struct type
-%               - t: (t,1) Vector of time [s]
-%               - fs: Sampling rate [Hz]
-%               - lambda: (1,lamIdx) Vector of wavelengths [nm]
-%               - rhos: (SDidx,SSidx) Source-detector distances [mm]
-%               - drho: (1,SSidx) Differences in distances [mm]
-%               - loc: (3,SSidx) Matrix of SS sets optode centroid [mm]
-%               - C: (t,SSidx,lamIdx) Slope of CW data-type
-%                       {Delta ln(rho^2Rcw) / Delta rho} [1/mm]
-%               - I: (t,SSidx,lamIdx) Slope of FD amplitude data-type
-%                       {Delta ln(rho^2|R|) / Delta rho} [1/mm]
-%               - P: (t,SSidx,lamIdx) Slope of FD phase data-type
-%                       {Delta angle(R) / Delta rho} [rad/mm]
-%           - DS: Struct for Dual-Slope (DS) containing:
-%               - typ: String of value 'DS' to identify struct type
-%               - t: (t,1) Vector of time [s]
-%               - fs: Sampling rate [Hz]
-%               - lambda: (1,lamIdx) Vector of wavelengths [nm]
-%               - rhos: (SDidx,DSidx) Source-detector distances [mm]
-%               - drho: (SSidx,DSidx) Differences in distances [mm]
-%               - loc: (3,DSidx) Matrix of DS sets optode centroid [mm]
-%               - mua: (DSidx,lamIdx) Matrix of recovered absorption
-%                       coefficient [1/mm]
-%               - musp: (DSidx,lamIdx) Matrix of recovered reduced
-%                       scattering coeficent [1/mm]
-%               - C: (t,DSidx,lamIdx) Slope of CW data-type
-%                       {Delta ln(rho^2Rcw) / Delta rho} [1/mm]
-%               - I: (t,DSidx,lamIdx) Slope of FD amplitude data-type
-%                       {Delta ln(rho^2|R|) / Delta rho} [1/mm]
-%               - P: (t,DSidx,lamIdx) Slope of FD phase data-type
-%                       {Delta angle(R) / Delta rho} [rad/mm]
-%           - aux: Struct of auxiliary data containing:
-%               - t: (t,1) Vector of time [s]
-%               - fs: Sampling rate [Hz]
-%               - Labels: (:,1) Vector of strings containing the names of
-%                       the auxilary channels
-%               - XXX, YYY, ZZZ,... (t,1) Fields with names of auxiliary
-%                       channel labels [various]
+% INPUTS:
+%   data - Struct output from load_Imagent() or load_ISS(), containing:
+%          - timemat: (t x 1) Vector of time [s]
+%          - fs: Sampling rate [Hz]
+%          - A, B, ...: Detector structs with AC, DC, and Ph matrices.
+%          - AUX: (t x nAux) Matrix of auxiliary signals.
+%   armt - Struct from DSdisc() defining the array geometry:
+%          - rSrc, rDet: Optode coordinates [mm]
+%          - SDprs, SSprs, DSprs: Optode pairing definitions.
+%   ISSmap - Struct mapping ISS channels to the physical array:
+%          - numLam: Number of wavelengths.
+%          - lambda: Vector of wavelengths [nm].
+%          - lets: Detector letter names.
+%          - inds: Mapping array (lambda x source x detector).
+%
+% Optional Name-Value-Arguments (NVA):
+%   BLinds - (t x 1) Logical vector defining baseline indices (Default: all true)
+%   BLaux  - Name of the auxiliary channel to use for defining BLinds.
+%   doAbs  - Logical flag to calculate absolute optical properties (Default: true)
+%   muaBnd - [min, max] Bounds for absolute absorption recovery [1/mm].
+%   muspBnd - [min, max] Bounds for absolute reduced scattering recovery [1/mm].
+%   calibrateAUX_NVA - Cell array of arguments for calibrateAUX().
+%
+% OUTPUTS:
+%   SD, SS, DS - Structs containing processed data types (C, I, P), 
+%                coordinates, and metadata for each measurement category.
+%   aux - Struct containing calibrated auxiliary signals.
 
     %% Parse Input
     arguments

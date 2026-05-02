@@ -1,38 +1,34 @@
-function [datStruct] =...
-    arrayData2dmua(datStruct, absp, NVA)
-% Giles Blaney Ph.D. Winter 2023
-% Comments written by Cristianne Fernandez August 2023
-%%%%%%%% Inputs %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% datStruct - either SD, SS, or DS struct that has gone through
-%           parseArrayData.m and rmBadChans.m
-% absp  - absolute optical properties for each DS set output from arrayAbsMap
-%%% Optional Inputs 
-% BLinds - Logical vector where true indicies will be considered baseline
-% datTypes - String aray of data types to run 
-% fmod - modulation frequency (MHz)
-% nin - index of refraction inside (-)
-% opts2L         - OPTIONAL; struct - when you want to do the 2-Layer you
-%                   need to have these inputs
-%                   totL   - String controlling the total pathlength to be used
-%                        with values:
-%                        '2L'      - Use true two-layer total pathlengths
-%                        'homoEff' - Use homogenous total pathlengths from
-%                        effective homogenous optical properties, as-if
-%                        effective homogenous optical properties were used
-%                        to find DPF and DSF in a real-world measurment
-%                   thk  - Layer thickness. (mm)
-%                   nin  - (default=[1.4, 1.4]) Index of refraction inside. (-)
-%                   nout - (default=1) Index of refraction outside. (-)
-%                   musp - Size lambda x layer (default=[1.20, 0.25] 1/mm) 
-%                           Reduced scattering. (1/mm)
-%                   mua  - Size lambda x layer (default=[0.008, 0.020] 1/mm) Absorption. (1/mm) 
-%                   fmod   - (default=1.40625 Hz) Modulation frequency {Hz}
-%                   h_end  - (default=2000) Number of Bessel function zeros
-%                   B      - (default=150 mm) Radius of cylindrical boundary {mm}
-%%%%%%%% Outputs %%%%%%%%%%%%%%%%%%%%%%%%%%%
-% dataStruct -  either SD, SS, or DS struct that now has dmua, Oxy and
-%               DeOxy calculated for the datTypes
-
+function [datStruct] = arrayData2dmua(datStruct, absp, NVA)
+% arrayData2dmua Calculates absorption changes and hemodynamics for NIRS data.
+%
+% [datStruct] = arrayData2dmua(datStruct, absp, NVA)
+%
+% Written by Giles Blaney, Ph.D. (Winter 2023)
+% Modified by Cristianne Fernandez (August 2023)
+%
+% Inputs:
+%   datStruct - Struct containing NIRS data (SD, SS, or DS format).
+%               Must have gone through parseArrayData.m and rmBadChans.m.
+%   absp      - Struct of absolute optical properties maps from arrayAbsMap.m.
+%
+% Optional Name-Value-Arguments (NVA):
+%   BLinds   - (nTime x 1) Logical vector defining baseline indices (Default: all true)
+%   datTyps  - String array of data types to process (e.g., ["C", "I", "P"])
+%   fmod     - Modulation frequency [Hz] (Default: 140.625e6)
+%   nin      - Index of refraction of the medium (Default: 1.4)
+%   opt2L    - Struct for two-layer pathlength calculations:
+%              - totL: '2L' (true two-layer) or 'homoEff' (effective homogeneous)
+%              - thk: Layer thickness [mm]
+%              - nin: [n1, n2] Index of refraction (Default: [1.4, 1.4])
+%              - nout: Index of refraction outside (Default: 1)
+%              - musp: [musp1, musp2] Reduced scattering [1/mm]
+%              - mua: [mua1, mua2] Absorption [1/mm]
+%              - fmod: Modulation frequency [Hz]
+%              - h_end: Number of Bessel function zeros (Default: 2000)
+%              - B: Radius of cylindrical boundary [mm] (Default: 150)
+%
+% Outputs:
+%   datStruct - Updated input struct with dmua, dO (HbO), dD (HbR), and dT (HbT).
 
     %% Parse Input
     arguments

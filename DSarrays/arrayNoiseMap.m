@@ -1,4 +1,25 @@
 function [nois] = arrayNoiseMap(datStruct, nameValArgs)
+% arrayNoiseMap Generates a 2D map of noise distribution across a NIRS array.
+%
+% [nois] = arrayNoiseMap(datStruct, nameValArgs)
+%
+% Written by Giles Blaney, Ph.D.
+%
+% This function interpolates discrete channel noise measurements onto a 
+% continuous 2D spatial map using Gaussian smoothing.
+%
+% Inputs:
+%   datStruct - Struct containing NIRS data and noise metrics (Cnoise, Inoise, Pnoise).
+%
+% Optional Name-Value-Arguments:
+%   method - Smoothing method to be used ('GaussCent')
+%   len    - Characteristic length of Gaussian smoothing [mm] (Default: 30)
+%   dr     - Spatial resolution of the output grid [mm] (Default: 1)
+%   rHalo  - Radius around centroids to apply noise values [mm] (Default: 30)
+%
+% Outputs:
+%   nois - Struct containing the generated noise maps and grid coordinates.
+
     %% Parse Input
     arguments
         datStruct struct;

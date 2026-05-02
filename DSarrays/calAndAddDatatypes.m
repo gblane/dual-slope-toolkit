@@ -1,5 +1,30 @@
 function [SD, SS, DS] =...
     calAndAddDatatypes(SD, SS, DS, armt, absp, NVA)
+% calAndAddDatatypes Calibrates raw data and calculates processed NIRS data types.
+%
+% [SD, SS, DS] = calAndAddDatatypes(SD, SS, DS, armt, absp, NVA)
+%
+% Written by Giles Blaney, Ph.D.
+%
+% This function performs intensity and phase calibration on raw SD data 
+% using baseline absolute optical properties, then propagates these 
+% calibrated values to calculate SS and DS data types (C, I, P).
+%
+% Inputs:
+%   SD, SS, DS - Structs containing NIRS data/metadata for each category.
+%   armt       - Struct defining the array arrangement and optode pairings.
+%   absp       - Struct containing absolute optical property maps.
+%
+% Optional Name-Value-Arguments (NVA):
+%   datTyps - String array of data types to calculate (Default: ["C", "I", "P"])
+%   BLinds  - (nTime x 1) Logical vector defining baseline indices (Default: all true)
+%   fmod    - Modulation frequency [Hz] (Default: 140.625e6)
+%   nin     - Index of refraction (Default: 1.4)
+%
+% Outputs:
+%   SD, SS, DS - Updated structs with calibrated data types.
+
+    %% Parse Input
     arguments
         SD struct;
         SS struct;

@@ -1,56 +1,34 @@
 function [outp] = DPF_DSF_calc(rs, rd, muaLamb, muspLamb, calcmode,...
     fmod, nin, opt2L)
-% [outp] = DPF_DSF_calc(rs, rd, muaLamb, muspLamb, calcmode, fmod, nin)
-% Updated by Giles Blaney Spring 2022
+% DPF_DSF_calc Calculates Differential Pathlength Factors (DPF) or Slope Factors (DSF).
+%
+% [outp] = DPF_DSF_calc(rs, rd, muaLamb, muspLamb, calcmode, fmod, nin, opt2L)
+%
+% Written by Giles Blaney, Ph.D. (Spring 2022)
+% Modified by Cristianne Fernandez (March 2023)
+%
 % Inputs:
-%   rs          - Pencil beam source positions in [x, y, z] with direction 
-%                   vector of [0, 0, 1].
-%                   Size: [numSD, 3]; Units: mm
-%   rd          - Detector positions in [x, y, z].
-%                   Size: [numSD, 3]; Units: mm
-%   muaLamb     - Vector of absorption coefficients.
-%                   Size: [numOptProp, 1] OR [1, numOptProp]; Units: 1/mm
-%   muspLamb    - Vector of reduced scattering coefficients.
-%                   Size: [numOptProp, 1] OR [1, numOptProp]; Units: 1/mm
-%   calcmode    - String with four possible values:
-%                   - 'DPF_I': To calculate the intensity DPF
-%                   - 'DPF_Ph' or 'DPF_P': To calculate the phase DPF
-%                   - 'DSF_I': To calculate the intensity DSF
-%                   - 'DSF_Ph' or 'DSF_P': To calculate the phase DSF
-%                   - ...
-%   fmod        - OPTIONAL, default=140.625e6 Hz
-%                   Modulation frequency
-%                   Size: scalar; Units: Hz
-%   nin         - OPTIONAL, default=1.4
-%                   Index of refraction inside the medium (outside assumed
-%                   to be 1).
-%                   Size: scalar; Units: unitless
-%               %%% Added by Cristy on 03/08/2023 %%%%
-%  opts2L         - OPTIONAL; struct - when you want to do the 2-Layer you
-%                   need to have these inputs
-%                   totL   - String controlling the total pathlength to be used
-%                        with values:
-%                        '2L'      - Use true two-layer total pathlengths
-%                        'homoEff' - [DO NOT USE] Use homogenous total pathlengths from
-%                        effective homogenous optical properties, as-if
-%                        effective homogenous optical properties were used
-%                        to find DPF and DSF in a real-world measurment
-%                   thk     - Layer thickness. (mm)
-%                   nin  - (default=[1.4, 1.4]) Index of refraction inside. (-)
-%                   nout - (default=1) Index of refraction outside. (-)
-%                   musp - Size lambda x layer (default=[1.20, 0.25] 1/mm) Reduced scattering.
-%                           (1/mm)
-%                   mua  - Size lambda x layer (default=[0.008, 0.020] 1/mm) Absorption. (1/mm) 
-%                   fmod   - (default=1.40625 Hz) Modulation frequency {Hz}
-%                   h_end  - (default=2000) Number of Bessel function zeros
-%                   B      - (default=150 mm) Radius of cylindrical boundary {mm}
+%   rs          - Pencil beam source positions [x, y, z]. Size: (nSD x 3) [mm]
+%                 (Assumes direction vector of [0, 0, 1])
+%   rd          - Detector positions [x, y, z]. Size: (nSD x 3) [mm]
+%   muaLamb     - Vector of absorption coefficients [1/mm]. Size: (1 x nLambda)
+%   muspLamb    - Vector of reduced scattering coefficients [1/mm]. Size: (1 x nLambda)
+%   calcmode    - String defining the calculation type:
+%                   - 'DPF_I': Intensity DPF
+%                   - 'DPF_Ph' or 'DPF_P': Phase DPF
+%                   - 'DSF_I': Intensity DSF
+%                   - 'DSF_Ph' or 'DSF_P': Phase DSF
+%
+% Optional Inputs:
+%   fmod        - Modulation frequency [Hz] (Default: 140.625e6)
+%   nin         - Index of refraction inside the medium (Default: 1.4)
+%   opt2L       - Struct for two-layer calculations:
+%                   - totL: '2L' or 'homoEff'
+%                   - thk: Layer thickness [mm]
+%                   - nin, nout, musp, mua, fmod, h_end, B (Various parameters)
+%
 % Outputs:
-%   outd        - Value requested by calcmode input.
-%                   Units: unitless
-%                   - For DSF or DPF if numSD=1
-%                       Size: same as muaLamb input
-%                   - For DPF if numSD>1
-%                       Size: [numOptProp, numSD]
+%   outp        - Calculated DPF or DSF value(s).
 
     %% Setup
     if exist('opt2L', 'var')

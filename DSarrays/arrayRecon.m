@@ -1,5 +1,22 @@
 function [recn] = arrayRecon(dstr, sens, NVA)
-% Giles Blaney Ph.D. Winter 2023
+% arrayRecon Performs image reconstruction for NIRS array data.
+%
+% [recn] = arrayRecon(dstr, sens, NVA)
+%
+% Written by Giles Blaney, Ph.D. (Winter 2023)
+%
+% Inputs:
+%   dstr - Struct containing NIRS data (dmua, etc.)
+%   sens - Struct containing sensitivity maps (Jacobians)
+%
+% Optional Name-Value-Arguments (NVA):
+%   datTyps - String array of data types to reconstruct (Default: ["C", "I", "P"])
+%   dmuaNm  - Name of the dmua field to use ('Fold', or '') (Default: 'Fold')
+%   a       - Regularization parameter multiplier (Default: 1)
+%
+% Outputs:
+%   recn - Struct containing the reconstructed 2D maps of dmua and hemodynamics.
+
     %% Parse Input
     arguments
         dstr struct;

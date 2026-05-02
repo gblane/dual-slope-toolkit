@@ -1,4 +1,29 @@
 function h = plotVectorizedMap(r_xy, map, NVA)
+% plotVectorizedMap Visualizes 2D vectorized data on a grid.
+%
+% h = plotVectorizedMap(r_xy, map, NVA)
+%
+% Written by Giles Blaney, Ph.D.
+%
+% This function takes discrete 2D spatial points and their associated 
+% values and generates a color map (pcolor). It supports smoothing and
+% complex value visualization (amplitude or angle).
+%
+% Inputs:
+%   r_xy - (n x 2) Matrix of spatial coordinates [mm].
+%   map  - (n x 1) Vector of values associated with each point.
+%
+% Optional Name-Value-Arguments (NVA):
+%   doSmooth      - Logical flag to apply Gaussian smoothing (Default: false)
+%   smSz          - Smoothing size [mm] (Default: 25)
+%   doComplex     - Mode for complex values: 'no', 'amp', 'ang' (Default: 'no')
+%   complexAmpRng - [min, max] Range for complex amplitude scaling.
+%   angWrap       - Angle wrapping value [rad] (Default: pi)
+%
+% Outputs:
+%   h - Handle to the pcolor plot object.
+
+    %% Parse Input
     arguments
         r_xy (:,2) double;
         map (:,1) double;

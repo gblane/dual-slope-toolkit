@@ -1,16 +1,20 @@
 function [armt] = findGoodOpts(datStruct, armt)
-% Written by Giles Blaney Winter 2022
-% Comments by Cristianne Fernandez August 2023 
-% This function takes in the data struct that has the useSet variable to
-% add them to the armt 
+% findGoodOpts Updates the array struct with usable source/detector pairs.
+%
+% [armt] = findGoodOpts(datStruct, armt)
+%
+% Written by Giles Blaney, Ph.D. (Winter 2022)
+% Modified by Cristianne Fernandez (August 2023)
+%
+% Inputs:
+%   datStruct - Struct containing NIRS data (SD, SS, or DS format).
+%               Must contain 'useSet' variables from rmBadChans.m.
+%   armt      - Struct containing the array arrangement and optode positions.
+%
+% Outputs:
+%   armt      - Updated array struct with useSrc/useDet logical maps.
 
-%%%%%%%%%%%%%%%%%%%%%% Inputs %%%%%%%%%%%%%%%%%%%%%%%%
-% datStruct - either SD, SS, or DS struct that has gone through
-%           rmBadChans.m 
-% armt - struct 
-%%%%%%%%%%%%%%%%%%%%% Outputs %%%%%%%%%%%%%%%%%%%%%%%%
-% datStruct - either SD, SS, or DS struct with missing 
-%% Parse Input
+    %% Parse Input
     arguments
         datStruct struct;
         armt struct;

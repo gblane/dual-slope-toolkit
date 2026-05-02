@@ -1,32 +1,33 @@
-function [datStruct] =...
-    rmBadChans(datStruct, NVA)
-% Written by Giles Blaney Winter 2022
-% Comments by Cristianne Fernandez August 2023
-% This function removes sets that are above the set noise thresholds, determined 
-% by channels with a Total Hemoglobin noise above the set threshold and
-% frequency
-
-%%%%%%%%%%%%%%%%%%%%%% Inputs %%%%%%%%%%%%%%%%%%%%%%%%
-% datStruct - either SD, SS, or DS struct that has gone through
-%           parseArrayData.m 
-% OPTIONAL
-% BLinds - Logical vector where true indicies will be considered baseline
-% Tthresh - (microM) Threshold for the noise in Total Hemoglobin
-% window - (sec) window size 
-% fHP - (Hz) highpass filter frequency 
-% L_C - path length for DC
-% L_I - path length for AC 
-% L_P - path length for phase
-% DSF_C - for DC
-% DSF_I - for AC
-% DSF_P - for phase
-%%%%%%%%%%%%%%%%%%%%% Outputs %%%%%%%%%%%%%%%%%%%%%%%%
-% datStruct - either SD, SS, or DS struct with missing 
+function [datStruct] = rmBadChans(datStruct, NVA)
+% rmBadChans Removes data channels/sets that exceed noise thresholds.
+%
+% [datStruct] = rmBadChans(datStruct, NVA)
+%
+% Written by Giles Blaney, Ph.D. (Winter 2022)
+% Modified by Cristianne Fernandez (August 2023)
+%
+% This function identifies and masks (sets to NaN) measurement channels 
+% with total hemoglobin (HbT) noise levels exceeding a specified threshold.
+%
+% Inputs:
+%   datStruct - Struct containing NIRS data (SD, SS, or DS format).
+%
+% Optional Name-Value-Arguments (NVA):
+%   BLinds   - (t x 1) Logical vector defining baseline indices (Default: all true)
+%   Tthresh  - Noise threshold for Total Hemoglobin [uM] (Default: 1)
+%   window   - Window size for moving standard deviation [sec] (Default: 10)
+%   fHP      - High-pass filter cut-off frequency [Hz] (Default: 100/60)
+%   L_C, L_I, L_P - Differential Pathlength Factors for SD data types.
+%   DSF_C, DSF_I, DSF_P - Differential Slope Factors for DS/SS data types.
+%   SD, armt - Optional structs for advanced cross-validation between SD and DS.
+%
+% Outputs:
+%   datStruct - Updated data struct with bad channels masked and 'useSet' flags.
 
     %% Parse Input
     arguments
         datStruct struct;
-        
+
         NVA.BLinds (:,1) logical = true(size(datStruct.I, 1), 1);
 
         NVA.Tthresh double = 1; %uM
@@ -40,7 +41,7 @@ function [datStruct] =...
         NVA.DSF_C double = 8.26;
         NVA.DSF_I double = 7.90;
         NVA.DSF_P double = 1.50;
-        
+
         NVA.SD struct = [];
         NVA.armt struct = [];
     end

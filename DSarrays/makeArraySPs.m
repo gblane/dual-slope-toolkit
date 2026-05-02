@@ -1,4 +1,21 @@
 function [SP, SPinds] = makeArraySPs(locs)
+% makeArraySPs Determines subplot positions for an array of optode locations.
+%
+% [SP, SPinds] = makeArraySPs(locs)
+%
+% Written by Giles Blaney, Ph.D.
+%
+% This function maps spatial coordinates of optodes to a grid of subplot
+% indices, facilitating organized multi-plot visualizations.
+%
+% Inputs:
+%   locs - (3 x n) Matrix of optode locations [mm].
+%
+% Outputs:
+%   SP     - [rows, cols] grid for subplots.
+%   SPinds - (1 x n) Vector mapping each location to a subplot index.
+
+    %% Parse Input
     arguments
         locs (3,:) double;
     end
