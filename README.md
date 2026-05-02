@@ -1,5 +1,8 @@
 # dual-slope-toolkit
 
+> [!CAUTION]
+> **WORK IN PROGRESS**: This repository is currently being reorganized for public release. Documentation and examples are subject to change.
+
 Tools for the design, optimization, and spatial mapping of Dual-Slope (DS) Near-Infrared Spectroscopy (NIRS) data.
 
 ## Overview
