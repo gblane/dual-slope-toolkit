@@ -28,9 +28,10 @@ Dual-Slope (DS) is a self-calibrating measurement technique that minimizes the i
 - **`mua2OandD.m`**: Converts absorption changes into oxygenated (HbO) and deoxygenated (HbR) hemoglobin concentrations.
 
 ### Examples (`examples/`)
-- **`example_hemodynamics.m`**: Demonstrates calculating hemodynamics from raw data using standalone DS functions.
-- **`example_array_discovery.m`**: Shows how to use `DSdisc.m` to identify valid optode pairings for a custom array layout.
+- **`example_hemodynamics.m`**: Demonstrates calculating hemodynamics from raw data using standalone DS functions (based on Blaney et al., *J. Biophotonics* 2019).
+- **`example_array_discovery.m`**: Shows how to use `DSdisc.m` to identify valid optode pairings for a custom array layout (based on Blaney et al., *Rev. Sci. Instrum.* 2020).
 - **`example_array_evaluation.m`**: Demonstrates array performance evaluation using the `GammaDelta.m` metric calculator.
+- **NEUROW Imaging Series (`A1_look.m` to `B3_ttest.m`)**: A comprehensive step-by-step example of processing hexagonal array data for cerebral hemodynamic imaging (based on Blaney et al., *Neurophotonics* 2023).
 
 ### Visualization Utilities (`DSarrays/`)
 - **`plotVectorizedMap.m`**: Flexible 2D visualization for discrete spatial data, including complex value support.
