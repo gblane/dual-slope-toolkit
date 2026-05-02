@@ -1,5 +1,8 @@
 %% Setup
 clear; home;
+addpath(genpath('../../src'));
+addpath('../../data');
+
 
 %% Find File
 filesTMP=dir('*.set');

@@ -9,6 +9,9 @@
 %   Review of Scientific Instruments. https://doi.org/10.1063/5.0015512
 
 clear; home;
+addpath(genpath('../../src'));
+addpath('../../data');
+
 
 %% Load Optode Coordinates
 % Coors_HEXarray.mat contains AllSrcs and AllDets matrices [mm]

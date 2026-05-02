@@ -9,6 +9,9 @@
 %   Biophotonics. 2019;e201960018. https://doi.org/10.1002/jbio.201960018
 
 clear; home;
+addpath(genpath('../../src'));
+addpath('../../data');
+
 
 %% Load Example Data
 % exampleData.mat contains raw intensity (I) and phase (phi) data

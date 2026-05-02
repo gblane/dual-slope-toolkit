@@ -1,9 +1,12 @@
 %% Setup
 clear; home;
+addpath(genpath('../../src'));
+addpath('../../data');
+
 % Giles Blaney Summer 2020
 
-% G. Blaney, A. Sassaroli, and S. Fantini, “Design of a source-detector 
-% array for dual-slope diffuse optical imaging,” Review of Scientific 
+% G. Blaney, A. Sassaroli, and S. Fantini, Â“Design of a source-detector 
+% array for dual-slope diffuse optical imaging,Â” Review of Scientific 
 % Instruments, https://doi.org/10.1063/5.0015512.
 
 load('S_HEXarray.mat');
