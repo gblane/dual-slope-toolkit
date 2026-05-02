@@ -6,36 +6,36 @@ Tools for the design, optimization, and spatial mapping of Dual-Slope (DS) Near-
 
 Dual-Slope (DS) is a self-calibrating measurement technique that minimizes the impact of optode-coupling errors and surface-layer heterogeneity. This toolkit provides the core algorithms for discovering valid DS pairings, optimizing array layouts, and reconstructing 2D spatial maps of optical properties and hemodynamics.
 
-## Contents
+## Repository Structure
 
-### Array Discovery & Design (`DSarrays/`)
-- **`DSdisc.m`**: Core function to discover valid Single-Distance (SD), Single-Slope (SS), and Dual-Slope (DS) pairings from physical coordinates.
-- **`findGoodOpts.m`**: Identifies usable optode pairs based on signal quality and noise criteria.
-- **`findDS_SDinds.m` / `findSS_SDinds.m`**: Index mapping helpers for data propagation.
-- **`GammaDelta.m`**: Calculates resolution (Gamma) and localization error (Delta) metrics for array evaluation.
-
-### Spatial Mapping & Reconstruction (`DSarrays/`)
-- **`arrayAbsMap.m`**: Generates continuous 2D maps of absolute optical properties using Gaussian smoothing.
-- **`arrayData2dmua.m`**: Calculates absorption changes ($\Delta\mu_a$) and hemodynamics (HbO, HbR) from processed data.
-- **`arrayRecon.m`**: Performs regularized image reconstruction for NIRS array data.
-- **`arrayNoiseMap.m`**: Interpolates discrete noise metrics onto a continuous 2D spatial map.
-
-### Core DS Calculations (`abs_multiDist/`)
-- **`DPF_DSF_calc.m`**: Primary calculator for Differential Pathlength Factors (DPF) and Differential Slope Factors (DSF), including two-layer support.
-
-### Standalone DS Tools (Root)
-- **`DSdmua.m`**: Standalone function for calculating Dual-Slope absorption changes from 4-channel intensity or phase data.
-- **`mua2OandD.m`**: Converts absorption changes into oxygenated (HbO) and deoxygenated (HbR) hemoglobin concentrations.
+### Source Code (`src/`)
+- **`physics/`**: Core DS and conversion tools.
+  - `DSdmua.m`: Standalone DS absorption change calculator.
+  - `mua2OandD.m`: Hemodynamic converter (HbO, HbR).
+  - `DPF_DSF_calc.m`: Pathlength and slope factor calculator.
+  - `GammaDelta.m`: Array resolution and localization metrics.
+- **`geometry/`**: Array discovery and layout optimization.
+  - `DSdisc.m`: Automated pairing discovery.
+  - `findDS_SDinds.m` / `findSS_SDinds.m`: Index mapping helpers.
+  - `makeArraySPs.m`: Subplot layout optimizer.
+- **`imaging/`**: Spatial mapping and reconstruction.
+  - `arrayAbsMap.m`: 2D absolute property mapping.
+  - `arrayData2dmua.m`: Absorption and hemodynamic change mapping.
+  - `arrayRecon.m`: Regularized image reconstruction.
+  - `arrayNoiseMap.m`: Spatial noise mapping.
+  - `plotVectorizedMap.m`: 2D visualization utility.
+- **`io/`**: Data parsing and signal cleaning.
+  - `parseArrayData.m`: Raw ISS data parser.
+  - `rmBadChans.m`: Noise-based channel filtering.
+  - `calAndAddDatatypes.m`: Calibration and data-type propagation.
 
 ### Examples (`examples/`)
-- **`example_hemodynamics.m`**: Demonstrates calculating hemodynamics from raw data using standalone DS functions (based on Blaney et al., *J. Biophotonics* 2019).
-- **`example_array_discovery.m`**: Shows how to use `DSdisc.m` to identify valid optode pairings for a custom array layout (based on Blaney et al., *Rev. Sci. Instrum.* 2020).
-- **`example_array_evaluation.m`**: Demonstrates array performance evaluation using the `GammaDelta.m` metric calculator.
-- **NEUROW Imaging Series (`A1_look.m` to `B3_ttest.m`)**: A comprehensive step-by-step example of processing hexagonal array data for cerebral hemodynamic imaging (based on Blaney et al., *Neurophotonics* 2023).
+- **`standalone/`**: Direct hemodynamics calculation (Blaney et al., *J. Biophotonics* 2019).
+- **`array_design/`**: Pairing discovery and array evaluation (Blaney et al., *Rev. Sci. Instrum.* 2020).
+- **`neurow_imaging/`**: Step-by-step cerebral imaging workflow (Blaney et al., *Neurophotonics* 2023).
 
-### Visualization Utilities (`DSarrays/`)
-- **`plotVectorizedMap.m`**: Flexible 2D visualization for discrete spatial data, including complex value support.
-- **`makeArraySPs.m`**: Automatically determines optimal subplot layouts based on physical optode arrangements.
+### Shared Data (`data/`)
+- Consolidated `.mat` files for examples and model parameters.
 
 ## Author
 Developed by Giles Blaney, Ph.D.
