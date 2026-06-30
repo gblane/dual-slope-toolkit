@@ -29,6 +29,11 @@ function [datStruct] = arrayData2dmua(datStruct, absp, NVA)
 %
 % Outputs:
 %   datStruct - Updated input struct with dmua, dO (HbO), dD (HbR), and dT (HbT).
+%
+% Shared-repo dependencies:
+%   makeE and DPF_DSF_calc are provided by ../dos-inverse-models.
+%   DPF_DSF_calc calls forward models from ../dos-forward-models.
+%   circ_mean is provided by ../my-matlab.
 
     %% Parse Input
     arguments
@@ -66,7 +71,7 @@ function [datStruct] = arrayData2dmua(datStruct, absp, NVA)
     BLinds=NVA.BLinds;
     
     lambda=datStruct.lambda;
-    E=makeE('OD', lambda);
+    E=makeE('OD', lambda); % ../dos-inverse-models
 
     %% Set Loop
     for i=1:size(datStruct.I, 2)
@@ -100,23 +105,27 @@ function [datStruct] = arrayData2dmua(datStruct, absp, NVA)
             %% Calc DPF or DSF
             switch datTyp
                 case 'SD'
+                    % DPF_DSF_calc lives in ../dos-inverse-models.
                     datStruct.(nm)(i, :)=DPF_DSF_calc(...
                         [0, 0, 0], [datStruct.rho(i), 0, 0],...
                         muaTmp, muspTmp, nm,...
                         NVA.fmod, NVA.nin, opt2L);
                 case 'SS'
                     rdTmp=[datStruct.rhos(1:2, i), zeros(2, 2)];
+                    % DPF_DSF_calc lives in ../dos-inverse-models.
                     datStruct.(nm)(i, :)=DPF_DSF_calc(...
                         [0, 0, 0; 0, 0, 0], rdTmp,...
                         muaTmp, muspTmp, nm,...
                         NVA.fmod, NVA.nin, opt2L);
                 case 'DS'
                     rdTmp=[datStruct.rhos(1:2, i), zeros(2, 2)];
+                    % DPF_DSF_calc lives in ../dos-inverse-models.
                     datStruct.(nm)(i, :, 1)=DPF_DSF_calc(...
                         [0, 0, 0; 0, 0, 0], rdTmp,...
                         muaTmp, muspTmp, nm,...
                         NVA.fmod, NVA.nin, opt2L);
                     rdTmp=[datStruct.rhos(3:4, i), zeros(2, 2)];
+                    % DPF_DSF_calc lives in ../dos-inverse-models.
                     datStruct.(nm)(i, :, 2)=DPF_DSF_calc(...
                         [0, 0, 0; 0, 0, 0], rdTmp,...
                         muaTmp, muspTmp, nm,...

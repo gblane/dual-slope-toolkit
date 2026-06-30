@@ -3,7 +3,7 @@ function [armt] = findGoodOpts(datStruct, armt)
 %
 % [armt] = findGoodOpts(datStruct, armt)
 %
-% Written by Giles Blaney, Ph.D. (Winter 2022)
+% Written by Giles Blaney (Winter 2022; Ph.D. awarded May 2022)
 % Modified by Cristianne Fernandez (August 2023)
 %
 % Inputs:

@@ -22,6 +22,9 @@ function h = plotVectorizedMap(r_xy, map, NVA)
 %
 % Outputs:
 %   h - Handle to the pcolor plot object.
+%
+% Shared-repo dependencies:
+%   wrapTo is provided by ../my-matlab.
 
     %% Parse Input
     arguments

@@ -23,6 +23,10 @@ function [SD, SS, DS] =...
 %
 % Outputs:
 %   SD, SS, DS - Updated structs with calibrated data types.
+%
+% Shared-repo dependencies:
+%   complexReflectance is provided by ../dos-forward-models.
+%   calcData_datTyp is provided by ../dos-inverse-models.
 
     %% Parse Input
     arguments
@@ -64,6 +68,7 @@ function [SD, SS, DS] =...
             rs=[0, 0, 1/optProp.musp];
             rd=[SD.rho(i), 0, 0];
             
+            % complexReflectance lives in ../dos-forward-models.
             Rtheo=complexReflectance(rs, rd, omega, optProp);
             RcwTheo=complexReflectance(rs, rd, 0, optProp);
             
@@ -86,6 +91,7 @@ function [SD, SS, DS] =...
         % SD
         for SDind=1:size(SD.R, 2)
             for Lind=1:length(SD.lambda)
+                % calcData_datTyp lives in ../dos-inverse-models.
                 SD.(mTyp)(:, SDind, Lind)=...
                     calcData_datTyp(SD.rho(SDind),...
                     SD.R(:, SDind, Lind),...
@@ -115,7 +121,7 @@ function [SD, SS, DS] =...
                     Rtemp=SD.R(:, SS_SDinds(SSind, :), Lind);
                     RcwTemp=SD.Rcw(:, SS_SDinds(SSind, :), Lind);
     
-                    Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp);
+                    Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp); % ../dos-inverse-models
     
                     if strcmp(mTyp, "P")
                         nom=wrapToPi(Ytmp(:, 2)-Ytmp(:, 1));
@@ -152,7 +158,7 @@ function [SD, SS, DS] =...
                     Rtemp=SD.R(:, DS_SDinds(DSind, :), Lind);
                     RcwTemp=SD.Rcw(:, DS_SDinds(DSind, :), Lind);
     
-                    Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp);
+                    Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp); % ../dos-inverse-models
 
                     if strcmp(mTyp, "P")
                         nom1=wrapToPi(Ytmp(:, 3)-Ytmp(:, 1));

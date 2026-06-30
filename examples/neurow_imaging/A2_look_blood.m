@@ -3,9 +3,14 @@ clear; home;
 addpath(genpath('../../src'));
 addpath('../../data');
 
+% Shared functions: makeE and DPF_DSF_calc live in ../dos-inverse-models.
+% DPF_DSF_calc also depends on forward models in ../dos-forward-models.
 
 %% Find File
 filesTMP=dir('*.set');
+if isempty(filesTMP)
+    error('No .set file found, place one dataset in same folder');
+end
 if length(filesTMP)>1
     error(['More than one .set file found, '...
         'place only one dataset in same folder']);

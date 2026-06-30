@@ -1,4 +1,5 @@
 %% Setup
+% makeE lives in ../dos-inverse-models.
 clear; home;
 addpath(genpath('../../src'));
 addpath('../../data');
@@ -16,6 +17,9 @@ TnoiseThresh=1*sqrt(11); %uM
 
 %% Find File
 filesTMP=dir('Armt*.mat');
+if isempty(filesTMP)
+    error('No Armt file found, place one in same folder');
+end
 if length(filesTMP)>1
     error(['More than one Armt file found, '...
         'place only one in same folder']);
@@ -23,6 +27,9 @@ end
 load(filesTMP.name);
 
 filesTMP=dir('*.set');
+if isempty(filesTMP)
+    error('No .set file found, place one dataset in same folder');
+end
 if length(filesTMP)>1
     error(['More than one .set file found, '...
         'place only one dataset in same folder']);

@@ -1,4 +1,7 @@
 %% Setup
+% complexTotPathLen and complexPartPathLen live in ../dos-forward-models.
+% calcPathLen_datTyp lives in ../dos-inverse-models; this script also has
+% local legacy copies used only inside the example.
 clear; home;
 addpath(genpath('../../src'));
 addpath('../../data');
@@ -6,6 +9,9 @@ addpath('../../data');
 
 %% Find File
 filesTMP=dir('*.set');
+if isempty(filesTMP)
+    error('No .set file found, place one dataset in same folder');
+end
 if length(filesTMP)>1
     error(['More than one .set file found, '...
         'place only one dataset in same folder']);
@@ -16,6 +22,9 @@ filename=filesTMP.name(1:(end-4));
 load([filename '_analOutputA.mat']);
 
 filesTMP=dir('Armt*.mat');
+if isempty(filesTMP)
+    error('No Armt file found, place one in same folder');
+end
 if length(filesTMP)>1
     error(['More than one Armt file found, '...
         'place only one in same folder']);
@@ -337,7 +346,7 @@ for DTind=1:length(datTyps)
         sen.SD.R, sen.SD.(lnm), sen.SD.C, sen.SD.(lcwnm), datTyps{DTind});
     if ~isempty(lTmp)
         for SDind=1:size(armt.SDprs, 1)
-            for Lind=1:size(lambda)
+            for Lind=1:length(lambda)
 
                 SDsen=lTmp(:, :, SDind, Lind)./Ltmp(:, :, SDind, Lind);
 
@@ -356,7 +365,7 @@ for DTind=1:length(datTyps)
         sen.SS.R, sen.SS.(lnm), [], [], datTyps{DTind});
     if ~isempty(lTmp)
         for SSind=1:size(armt.SSprs, 3)
-            for Lind=1:size(lambda)
+            for Lind=1:length(lambda)
 
                 SSsen=...
                     (lTmp(:, :, 2, SSind, Lind)-lTmp(:, :, 1, SSind, Lind))./...
@@ -377,7 +386,7 @@ for DTind=1:length(datTyps)
         sen.DS.R, sen.DS.(lnm), [], [], datTyps{DTind});
     if ~isempty(lTmp)
         for DSind=1:size(armt.DSprs, 4)
-            for Lind=1:size(lambda)
+            for Lind=1:length(lambda)
 
                 SSsen1=...
                     (lTmp(:, :, 2, 1, DSind, Lind)-lTmp(:, :, 1, 1, DSind, Lind))./...

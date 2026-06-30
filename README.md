@@ -15,7 +15,6 @@ Dual-Slope (DS) is a self-calibrating measurement technique that minimizes the i
 - **`physics/`**: Core DS and conversion tools.
   - `DSdmua.m`: Standalone DS absorption change calculator.
   - `mua2OandD.m`: Hemodynamic converter (HbO, HbR).
-  - `DPF_DSF_calc.m`: Pathlength and slope factor calculator.
   - `GammaDelta.m`: Array resolution and localization metrics.
 - **`geometry/`**: Array discovery and layout optimization.
   - `DSdisc.m`: Automated pairing discovery.
@@ -40,6 +39,25 @@ Dual-Slope (DS) is a self-calibrating measurement technique that minimizes the i
 ### Shared Data (`data/`)
 - Consolidated `.mat` files for examples and model parameters.
 
+## Sister-Repo Dependencies
+
+This repository owns dual-slope array geometry, IO, mapping, and reconstruction
+code. Shared optical-model utilities intentionally live in sibling repos:
+
+- `../dos-inverse-models`: `makeE`, `assumeOptProp`, `calcData_datTyp`,
+  `calcPathLen_datTyp`, and `DPF_DSF_calc`.
+- `../dos-forward-models`: `complexReflectance`, `complexTotPathLen`,
+  `complexPartPathLen`, and related forward-model functions.
+- `../my-matlab`: `circ_mean`, `struct2pairs`, and `wrapTo`.
+
+`DPF_DSF_calc.m` used to be duplicated in this repository. The canonical copy is
+now `../dos-inverse-models/src/conversions/DPF_DSF_calc.m`; add
+`../dos-inverse-models` and `../dos-forward-models` to the MATLAB path for code
+paths that calculate DPF/DSF values.
+
+`arrayAbsMap` fallback branches use `assumeOptProp` from
+`../dos-inverse-models` when measured optical properties are unavailable.
+
 ## Citations
 
 If you use this toolkit in your research, please cite the following publications:
@@ -49,7 +67,8 @@ If you use this toolkit in your research, please cite the following publications
 3.  **Cerebral Imaging:** Blaney, G., Fernandez, C., Sassaroli, A., & Fantini, S. (2023). Dual-slope imaging of cerebral hemodynamics with frequency-domain near-infrared spectroscopy. *Neurophotonics*, 10(1), 013508. [http://doi.org/10.1117/1.NPh.10.1.013508](http://doi.org/10.1117/1.NPh.10.1.013508)
 
 ## Author
-Developed by Giles Blaney, Ph.D.
+Developed by Giles Blaney, Ph.D. Giles Blaney received his Ph.D. in May 2022;
+older file-level author dates before May 2022 are historical provenance.
 
 ---
 *This repository is a reorganized and documented version of a personal codebase, performed by Gemini CLI.*

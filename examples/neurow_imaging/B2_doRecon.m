@@ -6,6 +6,9 @@ addpath('../../data');
 
 %% Find File
 filesTMP=dir('*.set');
+if isempty(filesTMP)
+    error('No .set file found, place one dataset in same folder');
+end
 if length(filesTMP)>1
     error(['More than one .set file found, '...
         'place only one dataset in same folder']);
@@ -36,7 +39,7 @@ for DTind=1:length(dataTyps)
                 squeeze(sen.(MTnm).(DTnm)(:, 2, useSet, Lind)).'];
 
             alpha=a*max(diag(S*S'));
-            Sp=S'*inv(S*S'+alpha*eye(size(S, 1)));
+            Sp=S'*((S*S'+alpha*eye(size(S, 1)))\eye(size(S, 1)));
 
             eval(sprintf(...
                 'dmua_all=%s.dmuaFold_%s(:, useSet, Lind);',...
@@ -64,7 +67,9 @@ for DTind=1:length(dataTyps)
                     S_noNaN=S(DSinds_noNaN, :);
                     alpha_noNaN=a*max(diag(S_noNaN*S_noNaN'));
                     Sp_noNaN=S_noNaN'*...
-                        inv(S_noNaN*S_noNaN'+alpha*eye(size(S_noNaN, 1)));
+                        ((S_noNaN*S_noNaN'+...
+                        alpha_noNaN*eye(size(S_noNaN, 1)))\...
+                        eye(size(S_noNaN, 1)));
 
                     dmua_tmp1=Sp_noNaN*dmua(DSinds_noNaN);
                     dmua_tmp2=[dmua_tmp1(1:(size(Sp_noNaN, 1)/2)),...
@@ -90,7 +95,9 @@ for DTind=1:length(dataTyps)
                         S_noNaN=S(DSinds_noNaN, :);
                         alpha_noNaN=a*max(diag(S_noNaN*S_noNaN'));
                         Sp_noNaN=S_noNaN'*...
-                            inv(S_noNaN*S_noNaN'+alpha*eye(size(S_noNaN, 1)));
+                            ((S_noNaN*S_noNaN'+...
+                            alpha_noNaN*eye(size(S_noNaN, 1)))\...
+                            eye(size(S_noNaN, 1)));
 
                         dmua_tmp1=Sp_noNaN*dmua(DSinds_noNaN);
                         dmua_tmp2=[dmua_tmp1(1:(size(Sp_noNaN, 1)/2)),...
@@ -119,7 +126,8 @@ for DTind=1:length(dataTyps)
                 tmp(:, :, layInd, i)=E\dmuaTMP(:, :, layInd, i);
                 
                 for j=1:size(dmuadmuaTMP, 5)
-                    tmptmp(:, :, layInd, i, j)=E\dmuaTMP(:, :, layInd, i);
+                    tmptmp(:, :, layInd, i, j)=...
+                        E\dmuadmuaTMP(:, :, layInd, i, j);
                 end
             end
         end

@@ -25,6 +25,9 @@ function [absp] = arrayAbsMap(DS, NVA)
 %        Fields:
 %        - muaMap, muspMap: 2D maps for each wavelength.
 %        - x, y, XX, YY: Grid coordinates.
+%
+% Shared-repo dependencies:
+%   makeE and assumeOptProp are provided by ../dos-inverse-models.
 
 %% Parse Input
     arguments
@@ -79,15 +82,15 @@ function [absp] = arrayAbsMap(DS, NVA)
                         lam_other(isnan(mua_other_avg))=[];
                         mua_other_avg(isnan(mua_other_avg))=[];
                         
-                        Eother=makeE('T', lam_other);
+                        Eother=makeE('T', lam_other); % ../dos-inverse-models
                         T=Eother\mua_other_avg.';
 
-                        E=makeE('T', absp.lambda(Lind));
+                        E=makeE('T', absp.lambda(Lind)); % ../dos-inverse-models
                         mua_ass=E*T;
                         warning('T from other lambda assumed for mua');
                     else
                         [mua_ass, ~, ~, ~]=...
-                            assumeOptProp(absp.lambda(Lind));
+                            assumeOptProp(absp.lambda(Lind)); % ../dos-inverse-models
                         warning('Default mua assumed');
                     end
                     absp.muaMap(:, :, Lind)=mua_ass*...
@@ -110,7 +113,7 @@ function [absp] = arrayAbsMap(DS, NVA)
                         
                         if length(musp_other_avg)==1
                             [~, ~, ~, b_ass]=...
-                                assumeOptProp(absp.lambda(Lind));
+                                assumeOptProp(absp.lambda(Lind)); % ../dos-inverse-models
                             
                             musp_ass=musp_other_avg*...
                                 (absp.lambda(Lind)/lam_other)^-b_ass;
@@ -127,14 +130,16 @@ function [absp] = arrayAbsMap(DS, NVA)
                         else
                             x=lam_other;
                             y=musp_other_avg;
-                            f=fit(x, y, 'a*(x/700)^-b');
-                            musp_ass=f.a*(absp.lambda(Lind)/700)^-f.b;
+                            p=polyfit(log(x/700), log(y), 1);
+                            a_ass=exp(p(2));
+                            b_ass=-p(1);
+                            musp_ass=a_ass*(absp.lambda(Lind)/700)^-b_ass;
 
                             warning('b from other lambda assumed for musp');
                         end
                     else
                         [~, musp_ass, ~, ~]=...
-                            assumeOptProp(absp.lambda(Lind));
+                            assumeOptProp(absp.lambda(Lind)); % ../dos-inverse-models
                         warning('Default musp assumed');
                     end
                     absp.muspMap(:, :, Lind)=musp_ass*...

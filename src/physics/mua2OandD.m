@@ -18,6 +18,9 @@ function [O, D] = mua2OandD(mua, lambda)
 % Outputs:
 %   O      - Oxyhemoglobin concentration [uM].
 %   D      - Deoxyhemoglobin concentration [uM].
+%
+% Shared-repo dependencies:
+%   makeE is provided by ../dos-inverse-models.
 
     %% Parse Input
     if size(mua, 1)~=length(lambda)
@@ -28,14 +31,11 @@ function [O, D] = mua2OandD(mua, lambda)
     end
     
     %% Interpolate Extinction Spectra
-    spectra=load('OandDspect.mat');
-    Oext=interp1(spectra.lambda, spectra.Oext, lambda); %1/(mM cm)
-    Dext=interp1(spectra.lambda, spectra.Dext, lambda); %1/(mM cm)
+    E=makeE('OD', lambda)*1e4; %1/(mM cm)
     
     %% Slove for O and D
-    X=linsolve([Oext.', Dext.'], mua);
+    X=linsolve(E, mua);
     O=X(1, :).'*1000; %uM
     D=X(2, :).'*1000; %uM
     
 end
-

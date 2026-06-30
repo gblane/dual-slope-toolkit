@@ -16,6 +16,9 @@ function [recn] = arrayRecon(dstr, sens, NVA)
 %
 % Outputs:
 %   recn - Struct containing the reconstructed 2D maps of dmua and hemodynamics.
+%
+% Shared-repo dependencies:
+%   makeE is provided by ../dos-inverse-models.
 
     %% Parse Input
     arguments
@@ -29,7 +32,7 @@ function [recn] = arrayRecon(dstr, sens, NVA)
         NVA.a = 1;
     end
     
-    E=makeE('OD', dstr.lambda);
+    E=makeE('OD', dstr.lambda); % ../dos-inverse-models
     
     %% dmua Recon
     for Lind=1:length(dstr.lambda)
@@ -78,6 +81,7 @@ function [recn] = arrayRecon(dstr, sens, NVA)
                 S=NaN(size(dmuaM, 1), size(rxy, 1)*2);
                 for i=1:length(mTyps)
                     i0=i-1;
+                    mTyp=mTyps(i);
                     
                     tmpNm=join(['rxy_' mTyp], '');
                     inds=NaN(size(rxy, 1), 1);
@@ -92,11 +96,10 @@ function [recn] = arrayRecon(dstr, sens, NVA)
                 end
     
                 % Recon
-                alpha=NVA.a*max(diag(S(useSets, :)*S(useSets, :)'));
-                dmuaV=(...
-                    S(useSets, :)'*inv(S(useSets, :)*S(useSets, :)'+...
-                    alpha*eye(size(S(useSets, :), 1)))...
-                    )*dmuaM(useSets, :);
+                Suse=S(useSets, :);
+                alpha=NVA.a*max(diag(Suse*Suse'));
+                dmuaV=Suse'*((Suse*Suse' + alpha*eye(size(Suse, 1)))\...
+                    dmuaM(useSets, :));
                 
                 tmpNm=join(['dmua' NVA.dmuaNm '_' mTypsCom], '');
                 recn.(tmpNm)(:, :, 1, Lind)=...
@@ -104,7 +107,10 @@ function [recn] = arrayRecon(dstr, sens, NVA)
                 recn.(tmpNm)(:, :, 2, Lind)=...
                     dmuaV((size(dmuaV, 1)/2+1):end, :).';
 
-            catch
+            catch ME
+                warning('arrayRecon:DatatypeSkipped', ...
+                    'Skipping reconstruction for %s: %s', ...
+                    char(mTypsCom), ME.message);
                 tmpNm=join(['rxy_' mTypsCom], '');
                 recn.(tmpNm)=[];
                 tmpNm=join(['dmua' NVA.dmuaNm '_' mTypsCom], '');

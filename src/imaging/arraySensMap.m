@@ -24,6 +24,10 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
 %
 % Outputs:
 %   sens - Struct containing sensitivity maps and coordinate information.
+%
+% Shared-repo dependencies:
+%   complexTotPathLen and complexPartPathLen are provided by ../dos-forward-models.
+%   calcPathLen_datTyp is provided by ../dos-inverse-models.
 
     %% Parse Input
     arguments
@@ -50,11 +54,16 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
     end
     NVA.datTyps=unique([NVA.datTyps, "C", "I", "P"]);
 
-    argNms=fieldnames(NVA);
-    for i=1:length(argNms)
-        eval(sprintf('%s=NVA.%s;',...
-            argNms{i}, argNms{i}));
-    end
+    Sthresh=NVA.Sthresh;
+    z_min=NVA.z_min;
+    z_max=NVA.z_max;
+    z_lay=NVA.z_lay;
+    haloRad=NVA.haloRad;
+    dr=NVA.dr;
+    nin=NVA.nin;
+    nou=NVA.nou;
+    fmod=NVA.fmod;
+    datTyps=NVA.datTyps;
     clear NVA;
     
     sens.V=prod(dr); %mm^3
@@ -66,10 +75,8 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
     %% Make Sens Map Initial r
     for mTyp=datTyps
         if any(strcmp(mTyp, ["C", "I", "P"]))
-            eval(sprintf('useSrc=all(armt.%suseSrc_%s, 2);',...
-                datStruct.typ, mTyp));
-            eval(sprintf('useDet=all(armt.%suseDet_%s, 2);',...
-                datStruct.typ, mTyp));
+            useSrc=all(armt.([datStruct.typ 'useSrc_' char(mTyp)]), 2);
+            useDet=all(armt.([datStruct.typ 'useDet_' char(mTyp)]), 2);
         else
             useSrc=all([...
                 armt.([datStruct.typ 'useSrc_C']),...
@@ -96,18 +103,18 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                 round(AllOpt(:, 2), -1)+10])+haloRad;
     
             [XX, YY]=meshgrid(x_min:dr(1):x_max, y_min:dr(2):y_max);
-    
+
             r_xy=[XX(:), YY(:)];
             inds=or(...
                 min(sqrt((AllOpt(:, 1).'-r_xy(:, 1)).^2+...
                 (AllOpt(:, 2).'-r_xy(:, 2)).^2), [], 2)<=haloRad,...
                 inShape(shp, r_xy(:, 1), r_xy(:, 2)));
             
-            eval(sprintf('sens.rxy_%s=r_xy(inds, :);',...
-                mTyp));
+            rxynm=char("rxy_"+mTyp);
+            sens.(rxynm)=r_xy(inds, :);
         else
-            eval(sprintf('sens.rxy_%s=[];',...
-                mTyp));
+            rxynm=char("rxy_"+mTyp);
+            sens.(rxynm)=[];
         end
     end
 
@@ -148,20 +155,20 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                     rdTMP=armt.rDet(DetInd, :);
                     
                     [Ltmp, Rtmp]=...
-                        complexTotPathLen(rsTMP, rdTMP, omega, optProp);
+                        complexTotPathLen(rsTMP, rdTMP, omega, optProp); % ../dos-forward-models
                     [LcwTmp, RcwTmp]=...
                         complexTotPathLen(rsTMP, rdTMP, 0, optProp);
                     
                     for mTyp=datTyps
                         % [r_xy, layer, SD, lambda]
                         Lnm=join(['L_' mTyp], '');
+                        % calcPathLen_datTyp lives in ../dos-inverse-models.
                         sens.(Lnm)(1, 1, SDind, Lind)=...
                             calcPathLen_datTyp(Rtmp, Ltmp, RcwTmp, LcwTmp,...
                             mTyp);
 
-                        eval(sprintf(...
-                            'r_xy=sens.rxy_%s;',...
-                            mTyp));
+                        rxynm=char("rxy_"+mTyp);
+                        r_xy=sens.(rxynm);
                         
                         if ~isempty(r_xy)
                             lTmp_1=zeros(size(r_xy, 1), 1);
@@ -202,9 +209,8 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                                 Rtmp, lTmp_2, RcwTmp, lcwTmp_2,...
                                 mTyp);
                         else
-                            eval(sprintf(...
-                                'sens.l_%s=[];',...
-                                mTyp));
+                            lnm=char("l_"+mTyp);
+                            sens.(lnm)=[];
                         end
                     end
                 end
@@ -238,9 +244,8 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                                 calcPathLen_datTyp(Rtmp, Ltmp, RcwTmp, LcwTmp,...
                                 mTyp);
                         
-                            eval(sprintf(...
-                                'r_xy=sens.rxy_%s;',...
-                                mTyp));
+                            rxynm=char("rxy_"+mTyp);
+                            r_xy=sens.(rxynm);
                             
                             if ~isempty(r_xy)
                                 lTmp_1=zeros(size(r_xy, 1), 1);
@@ -281,9 +286,8 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                                     Rtmp, lTmp_2, RcwTmp, lcwTmp_2,...
                                     mTyp);
                             else
-                                eval(sprintf(...
-                                    'sens.l_%s=[];',...
-                                    mTyp));
+                                lnm=char("l_"+mTyp);
+                                sens.(lnm)=[];
                             end
                             
                         end
@@ -322,9 +326,8 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                                     calcPathLen_datTyp(Rtmp, Ltmp, RcwTmp, LcwTmp,...
                                     mTyp);
 
-                                eval(sprintf(...
-                                    'r_xy=sens.rxy_%s;',...
-                                    mTyp));
+                                rxynm=char("rxy_"+mTyp);
+                                r_xy=sens.(rxynm);
                                 
                                 if ~isempty(r_xy)
                                     lTmp_1=zeros(size(r_xy, 1), 1);
@@ -365,9 +368,8 @@ function [sens] = arraySensMap(datStruct, armt, absp, NVA)
                                         Rtmp, lTmp_2, RcwTmp, lcwTmp_2,...
                                         mTyp);
                                 else
-                                    eval(sprintf(...
-                                        'sens.l_%s=[];',...
-                                        mTyp));
+                                    lnm=char("l_"+mTyp);
+                                    sens.(lnm)=[];
                                 end
                             end
                         end

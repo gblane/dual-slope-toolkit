@@ -36,6 +36,10 @@ function [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
 %   SD, SS, DS - Structs containing processed data types (C, I, P), 
 %                coordinates, and metadata for each measurement category.
 %   aux - Struct containing calibrated auxiliary signals.
+%
+% Shared-repo dependencies:
+%   calcData_datTyp is provided by ../dos-inverse-models.
+%   calibrateAUX is provided by this repository.
 
     %% Parse Input
     arguments
@@ -57,9 +61,7 @@ function [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
     tN=length(data.timemat);
     tInds=1:tN;
     
-    tmp=struct2pairs(NVA);
-    tmp=[tmp, NVA.calibrateAUX_NVA];
-    aux=calibrateAUX(data, tmp{:});
+    aux=calibrateAUX(data, NVA.calibrateAUX_NVA{:});
 
     if ~isempty(NVA.BLaux)
         NVA.BLinds=aux.(NVA.BLaux);
@@ -106,7 +108,7 @@ function [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
         end
         
         for mTyp=["C", "I", "P"]
-            SD.(mTyp)=calcData_datTyp(SD.rho, SD.R, SD.Rcw, mTyp);
+            SD.(mTyp)=calcData_datTyp(SD.rho, SD.R, SD.Rcw, mTyp); % ../dos-inverse-models
         end
         SD.typ='SD';
         SD.t=data.timemat;
@@ -167,7 +169,7 @@ function [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
                 
                 drTmp=rhosTmp(2)-rhosTmp(1);
                 for mTyp=["C", "I", "P"]
-                    Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp);
+                    Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp); % ../dos-inverse-models
 
                     if strcmp(mTyp, "P")
                         nom=wrapToPi(Ytmp(:, 2)-Ytmp(:, 1));
@@ -256,15 +258,21 @@ function [SD, SS, DS, aux] = parseArrayData(data, armt, ISSmap, NVA)
                     end
                     drTmp=rhosTmp(2)-rhosTmp(1);
                     for mTyp=["C", "I", "P"]
-                        Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp);
+                        Ytmp=calcData_datTyp(rhosTmp, Rtemp, RcwTemp, mTyp); % ../dos-inverse-models
     
                         if strcmp(mTyp, "P")
                             nom=wrapToPi(Ytmp(:, 2)-Ytmp(:, 1));
                         else
                             nom=Ytmp(:, 2)-Ytmp(:, 1);
                         end
-                        eval(['SS' convertStringsToChars(mTyp)...
-                            'tmp(:, SSind)=nom./drTmp;']);
+                        switch mTyp
+                            case "C"
+                                SSCtmp(:, SSind)=nom./drTmp;
+                            case "I"
+                                SSItmp(:, SSind)=nom./drTmp;
+                            case "P"
+                                SSPtmp(:, SSind)=nom./drTmp;
+                        end
                     end
                     
                     SSrhosTmp(1:2, SSind)=rhosTmp;

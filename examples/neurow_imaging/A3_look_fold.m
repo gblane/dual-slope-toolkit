@@ -6,6 +6,9 @@ addpath('../../data');
 
 %% Find File
 filesTMP=dir('*.set');
+if isempty(filesTMP)
+    error('No .set file found, place one dataset in same folder');
+end
 if length(filesTMP)>1
     error(['More than one .set file found, '...
         'place only one dataset in same folder']);

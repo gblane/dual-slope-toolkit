@@ -3,7 +3,7 @@ function [datStruct] = rmBadChans(datStruct, NVA)
 %
 % [datStruct] = rmBadChans(datStruct, NVA)
 %
-% Written by Giles Blaney, Ph.D. (Winter 2022)
+% Written by Giles Blaney (Winter 2022; Ph.D. awarded May 2022)
 % Modified by Cristianne Fernandez (August 2023)
 %
 % This function identifies and masks (sets to NaN) measurement channels 
@@ -23,6 +23,10 @@ function [datStruct] = rmBadChans(datStruct, NVA)
 %
 % Outputs:
 %   datStruct - Updated data struct with bad channels masked and 'useSet' flags.
+%
+% Shared-repo dependencies:
+%   makeE is provided by ../dos-inverse-models.
+%   circ_mean is provided by ../my-matlab.
 
     %% Parse Input
     arguments
@@ -58,7 +62,7 @@ function [datStruct] = rmBadChans(datStruct, NVA)
     nNoise=NVA.window*fs;
     
     %% Calculate Noise Thresholds
-    Text=sum(makeE('OD', lambda), 2); %1/(mm uM)
+    Text=sum(makeE('OD', lambda), 2); % ../dos-inverse-models; 1/(mm uM)
     muaNoiseThresh=NVA.Tthresh*Text; %1/mm
     
     fNy=fs/2;
@@ -84,7 +88,14 @@ function [datStruct] = rmBadChans(datStruct, NVA)
     for i=1:size(datStruct.I, 2)
         for Lind=1:length(lambda)
             for mTyp=['C', 'I', 'P']
-                eval(['noiseThresh=' mTyp 'noiseThresh;']);
+                switch mTyp
+                    case 'C'
+                        noiseThresh=CnoiseThresh;
+                    case 'I'
+                        noiseThresh=InoiseThresh;
+                    case 'P'
+                        noiseThresh=PnoiseThresh;
+                end
 
                 SDoverRide=false;
                 if ~isempty(NVA.SD) && strcmp(datTyp, 'DS')
@@ -117,7 +128,10 @@ function [datStruct] = rmBadChans(datStruct, NVA)
     
                         datStruct.([mTyp 'noise'])(i, Lind)=median(movstd(...
                             tmpHP(NVA.BLinds), nNoise))*noiseScl;
-                    catch
+                    catch ME
+                        warning('rmBadChans:HighpassFailed', ...
+                            'High-pass filtering failed for %s set %d lambda %d: %s', ...
+                            mTyp, i, Lind, ME.message);
                         datStruct.([mTyp 'noise'])(i, Lind)=Inf;
                     end
                 end
