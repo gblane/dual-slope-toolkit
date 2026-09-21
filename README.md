@@ -27,6 +27,8 @@ Dual-Slope (DS) is a self-calibrating measurement technique that minimizes the i
   - `arrayNoiseMap.m`: Spatial noise mapping.
   - `plotVectorizedMap.m`: 2D visualization utility.
 - **`io/`**: Data parsing and signal cleaning.
+  - `load_Imagent.m`: ISS Imagent BOXY ASCII reader; produces the `data` struct `parseArrayData` consumes. Applies the BOXY 0.86.2 phase sign correction.
+  - `timeAxis.m`: sample-time column vector helper used by `load_Imagent`.
   - `parseArrayData.m`: Raw ISS data parser.
   - `rmBadChans.m`: Noise-based channel filtering.
   - `calAndAddDatatypes.m`: Calibration and data-type propagation.
